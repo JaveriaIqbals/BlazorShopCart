@@ -1,0 +1,83 @@
+﻿@page "/MyShop"
+@using BlazorShopCart.Models
+@using BlazorShopCart.Services
+<h3>MyShop</h3>
+
+
+@inject IShopService iss
+@inject HttpClient Http
+@if(products == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="row">
+        <div class= "col-xl-4" "col-lg-6">
+            <h2>Products</h2>
+            <table class="table">
+                @foreach(Product item in products)
+                {
+                    <tr>
+                        <td>
+                            <img src= "images/@item.Image" />
+                        </td>
+                        <td class="align-middle">
+                            @item.ProdName
+                        </td>
+                        <td class="align-middle">
+                            @item.Price
+                        </td>
+                        <td class="align-middle">
+                            <button class="btn btn-primary"
+                                @onclick = "@( () => iss.AddProduct(item))">
+                                Add to Cart
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div class="col-xl-4">
+
+        </div>
+        <div class="col-xl-4 col-lg-6">
+            @if(iss.cart.Any())
+            {
+                <h2> Your Cart </h2>
+                <ul class="list-group">
+                    @foreach(Product item in iss.cart)
+                    {
+                        <li class="list-group-item p-2">
+                            <button class="btn btn-sm"
+                                @onclick = "@( () => iss.RemoveProduct(item))">
+                          
+                            <span class="oi oi-delete">
+
+                            </span>
+                            </button>
+                            @item.ProdName - @item.Price
+                        </li>
+                    }
+                </ul>
+
+                /////////////////////////////////////////////////////
+                <div class="p-2">
+                    <h3>Grand Total : $@iss.OrderTotal</h3>
+                </div>
+            }
+        </div>
+
+    </div>
+}
+
+@code {
+    public IList<Product> products;
+    public double sum;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Http.GetFromJsonAsync<Product[]>("sample-data/products.json");
+    }
+}
+
